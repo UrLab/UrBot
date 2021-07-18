@@ -12,4 +12,6 @@ Ensure the legacy of [lechbot](https://github.com/UrLab/lechbot)
 
 ```
 make dev
+source ve/bin/activate
+python3 main.py
 ```
