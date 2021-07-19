@@ -2,14 +2,18 @@ import discord
 
 from discord_slash import SlashCommand
 
-from models.command_manager import CommandManager
+from src.parser import parse_command
+from models.command_registry import CommandRegistry
 
 
-class UrBot(discord.client):
+class UrBot(discord.Client):
+    """UrBoT's client"""
+
     instance = None
 
     @staticmethod
     def getInstance():
+        """Singleton Pattern"""
         if UrBot.instance is None:
             UrBot()
         return UrBot.instance
@@ -21,8 +25,10 @@ class UrBot(discord.client):
         UrBot.instance = self
         super().__init__()
 
+        import src.commands  # NOQA
+
         self.slash = SlashCommand(self, sync_commands=True)
-        self.commandManager = CommandManager.getInstance()
+        self.registry = CommandRegistry.getInstance()
 
     async def on_ready(self):
         """This is called when the connection to disord's API has succeed"""
@@ -33,5 +39,9 @@ class UrBot(discord.client):
         Args:
             message (discord.Message): The message with its metadata
         """
-        if message.content and message.content[0] == "/":
-            await self.commandManager.execCommand(message.content[1:], message.channel)
+        if message.content and message.content[0] == "$":
+            formatted = await parse_command(message)
+            print(formatted)
+            command = self.registry.get(formatted["command"]["command"])
+            print(self.registry.get(formatted["command"]["command"]))
+            await command(**formatted)
