@@ -40,8 +40,6 @@ class UrBot(discord.Client):
             message (discord.Message): The message with its metadata
         """
         if message.content and message.content[0] == "$":
-            formatted = await parse_command(message)
-            print(formatted)
-            command = self.registry.get(formatted["command"]["command"])
-            print(self.registry.get(formatted["command"]["command"]))
-            await command(**formatted)
+            params = await parse_command(message)
+            command = self.registry.get(params["command"]["command"])
+            await command(**params)
